@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前台首頁</title>
+    <head>
+        <style>
+            /* 網頁樣式 */
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f2f2f2;
+            }
+            .container {
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #fff;
+                box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+            }
+            .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+            .logout-btn {
+                background-color: #4CAF50;
+                color: #fff;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 16px;
+            }
+            .calendar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .calendar .month {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 10px;
+            flex-basis: 100%;
+        }
+        .calendar .days {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            flex-basis: 100%;
+        }
+        .calendar .day {
+            text-align: center;
+            flex-basis: calc(100% / 7);
+            padding: 10px;
+        }
+        .calendar .day.today {
+            color: rgb(0, 134, 45);
+            font-weight: bolder;
+            border-radius: 4px;
+            padding: 10px;
+        }
+        .calendar .day.selected {
+            background-color: #7ec1d5;
+            color: #fff;
+            border-radius: 4px;
+        }
+            .sidebar {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 20px;
+            }
+            .sidebar .detail {
+                flex-basis: 100%;
+                font-size: 20px;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+            .sidebar select {
+                display: block;
+                margin-bottom: 10px;
+                font-size: 16px;
+                padding: 5px;
+                border-radius: 4px;
+                border: 1px solid #ccc;
+                width: 100%;
+                max-width: 200px;
+                background-color: #fff;
+                box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
+                cursor: pointer;
+            }
+            .footer {
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+            }
+            .footer .member-id {
+                font-size: 16px;
+                margin-right: 10px;
+            }
+            .footer .order-btn,
+            .footer .edit-btn {
+                background-color: #4CAF50;
+                color: #fff;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+			font-size: 16px;
+			margin-left: 10px;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="header">
+			<div>前台預訂</div>
+			<button class="logout-btn">Log-Out</button>
+		</div>
+        <div class="calendar">
+            <div class="month">
+                <button id="prev-month-btn">←</button>
+                <span id="current-month-year"></span>
+                <button id="next-month-btn">→</button>
+            </div>
+            <div class="days">
+                <div class="day">Sun</div>
+                <div class="day">Mon</div>
+                <div class="day">Tue</div>
+                <div class="day">Wed</div>
+                <div class="day">Thu</div>
+                <div class="day">Fri</div>
+                <div class="day">Sat</div>
+            </div>
+        </div>
+		<div class="sidebar">
+			<div class="detail">Detail：<br>旅程名稱</div>
+			<select>
+				<option>人員名單1</option>
+				<option>人員名單2</option>
+				<option>人員名單3</option>
+				<option>人員名單4</option>
+			</select>
+			<select>
+				<option>早餐1</option>
+				<option>早餐2</option>
+				<option>早餐3</option>
+				<option>早餐4</option>
+                <option>早餐5</option>
+			</select>
+			<select>
+				<option>晚餐1</option>
+				<option>晚餐2</option>
+				<option>晚餐3</option>
+				<option>晚餐4</option>
+				<option>晚餐5</option>
+			</select>
+		</div>
+		<div class="footer">
+			<div class="member">會員編號</div>
+			<button class="order-btn">下訂</button>
+			<button class="edit-btn">Edit</button>
+		</div>
+	</div>
+    <script>
+        const currentMonthYearElem = document.getElementById('current-month-year');
+        const prevMonthBtn = document.getElementById('prev-month-btn');
+        const nextMonthBtn = document.getElementById('next-month-btn');
+        
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+        
+        const monthNames = [
+          "January", "February", "March",
+          "April", "May", "June", "July",
+          "August", "September", "October",
+          "November", "December"
+        ];
+        
+        const daysInMonth = (month, year) => {
+          return new Date(year, month + 1, 0).getDate();
+        }
+        
+        const updateCalendar = () => {
+          // 清空月曆日期
+          const daysElem = document.querySelector('.calendar .days');
+          while (daysElem.firstChild) {
+            daysElem.removeChild(daysElem.firstChild);
+          }
+        
+          // 設定月份和年份
+          const monthYearStr = `${monthNames[currentMonth]} ${currentYear}`;
+          currentMonthYearElem.innerHTML = monthYearStr;
+        
+          // 計算第一天是星期幾
+          const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        
+          // 計算這個月有幾天
+          const numDays = daysInMonth(currentMonth, currentYear);
+        
+          // 在月曆上顯示日期
+          let dayNum = 1;
+          for (let i = 0; i < 6; i++) {
+            for (let j = 0; j < 7; j++) {
+              const dayElem = document.createElement('div');
+              dayElem.classList.add('day');
+              if (i === 0 && j < firstDay) {
+                // 空白的日期
+                dayElem.classList.add('empty');
+              } else if (dayNum > numDays) {
+                // 超出這個月的日期
+                dayElem.classList.add('empty');
+              } else {
+                // 顯示這個月的日期
+                dayElem.innerHTML = dayNum;
+                dayElem.addEventListener('click', () => {
+                  const selectedDayElem = document.querySelector('.calendar .day.selected');
+                  if (selectedDayElem) {
+                    selectedDayElem.classList.remove('selected');
+                  }
+                  dayElem.classList.add('selected');
+                });
+
+                if (dayNum === currentDate.getDate() && currentMonth === currentDate.getMonth() && currentYear === currentDate.getFullYear()) {
+                  // 今天的日期
+                  dayElem.classList.add('today');
+                }
+                dayNum++;
+              }
+              daysElem.appendChild(dayElem);
+            }
+          }
+        };
+        
+        // 初始化日曆
+        updateCalendar();
+        
+        // 處理上一個月按鈕的點擊事件
+        prevMonthBtn.addEventListener('click', () => {
+          currentMonth--;
+          if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+          }
+          updateCalendar();
+        });
+        
+        // 處理下一個月按鈕的點擊事件
+        nextMonthBtn.addEventListener('click', () => {
+          currentMonth++;
+          if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+          }
+          updateCalendar();
+        });
+        // 取得元素
+        const chooseDateBtn = document.getElementById("choose-date");
+        const date = document.getElementById("date");
+        
+                </script>
+</body>
+</html>
+
+    
